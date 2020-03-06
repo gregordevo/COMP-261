@@ -75,8 +75,12 @@ public class Map extends GUI {
         stoplist.addAll(stopSet);
         listNames = new Trie(stoplist);
         getTextOutputArea().setText("");
+        if (highlighted == null) { highlighted = new ArrayList<>();}
 
-        for(Drawable d : highlighted){ d.highlightToggle(); }
+            for (Drawable d : highlighted) {
+                d.highlightToggle();
+            }
+
         highlighted.clear();
         String userInput = getSearchBox().getText();
         userInput = userInput.toLowerCase();
