@@ -1,22 +1,23 @@
+import java.awt.*;
+import java.util.List;
 import java.util.Set;
 
-public class Trip {
+public class Trip extends Drawable {
 
-    private final String id;
-    private final Set<Stop> stops;
+    private final List<Stop> stops;
 
-    public Trip(String id, Set<Stop> stops) {
-        this.id = id;
+    public Trip(String id, List<Stop> stops) {
+        this.ID = id;
         this.stops = stops;
     }
 
-
-    public String getId() {
-        return id;
+    public List<Stop> getStops() {
+        return stops;
     }
 
-    public Set<Stop> getStops() {
-        return stops;
+    @Override
+    public void draw(Graphics g) {
+
     }
 }
 
