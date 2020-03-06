@@ -17,7 +17,11 @@ public class Trip extends Drawable {
 
     @Override
     public void draw(Graphics g) {
-
+        for(int i = 1; i < stops.size(); i++){
+            Point firstPoint = stops.get(i-1).getPoint();
+            Point secondPoint = stops.get(i).getPoint();
+            g.drawLine((int)firstPoint.getX(), (int)firstPoint.getY(), (int)secondPoint.getX(), (int)secondPoint.getY());
+        }
     }
 }
 

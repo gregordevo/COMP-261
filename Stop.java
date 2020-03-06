@@ -27,4 +27,8 @@ public class Stop extends Drawable {
         g.setColor(colour);
         g.fillRect((int)point.getX(), (int)point.getY(), STOP_SIZE, STOP_SIZE);
     }
+
+    public Point getPoint(){
+        return location.asPoint(origin, scale);
+    }
 }
