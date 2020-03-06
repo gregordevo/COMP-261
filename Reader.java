@@ -41,7 +41,7 @@ public class Reader {
             reader.lines().forEach(line -> {
                 String[] data = line.split("\t");
                 Location stopLocation = Location.newFromLatLon(Double.parseDouble(data[2]), Double.parseDouble(data[3]));
-                Stop newStop = new Stop(data[0], stopLocation, data[1]);
+                Stop newStop = new Stop(data[0], stopLocation, data[1].toLowerCase());
                 setOfStops.add(newStop);
                 stopIDMap.put(newStop.getID(), newStop);
             });

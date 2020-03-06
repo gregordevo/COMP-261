@@ -1,7 +1,10 @@
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class Map extends GUI {
@@ -10,7 +13,7 @@ public class Map extends GUI {
     private HashSet<Trip> tripSet;
     private HashSet<Stop> stopSet;
     private ArrayList<Drawable> highlighted;
-
+    private Trie listNames;
     @Override
     protected void redraw(Graphics g) {
         if(tripSet == null || stopSet == null){
@@ -37,19 +40,63 @@ public class Map extends GUI {
                 closestStop = stop;
             }
         }
+        getTextOutputArea().append(closestStop.getName() + "\n");
         for (Trip trip : tripSet){
             if (trip.getStops().contains(closestStop)){
                 trip.highlightToggle();
                 highlighted.add(trip);
+                getTextOutputArea().append(trip.getID() + "\n");
             }
         }
         highlighted.add(closestStop);
         closestStop.highlightToggle();
+
+
     }
 
 
     @Override
     protected void onSearch() {
+//        for(Drawable d : highlighted) d.highlightToggle(); highlighted.clear();
+//        ArrayList<Stop> searchResult =  trie.findAllNode(getSearchBox().getText());
+//        highlighted.addAll(searchResult);
+//        for(Trip trip : tripSet){
+//            for(Stop s : searchResult){
+//                if(trip.getStops().contains(s.getName())){
+//                    highlighted.add(trip);
+//
+//                }
+//            }
+//        }
+//        for(Drawable d : highlighted) d.highlightToggle();
+
+
+        ArrayList<Stop> stoplist = new ArrayList<>();
+        stoplist.addAll(stopSet);
+        listNames = new Trie(stoplist);
+        getTextOutputArea().setText("");
+
+        for(Drawable d : highlighted){ d.highlightToggle(); }
+        highlighted.clear();
+        String userInput = getSearchBox().getText();
+        userInput = userInput.toLowerCase();
+
+        ArrayList<Stop> returnedNames = listNames.findAllNode(userInput);
+
+        if(userInput.equals("")){
+            getTextOutputArea().setText("");
+        }else{
+            for(Stop stop : returnedNames){
+                getTextOutputArea().append(stop.getName() + "\n");
+                stop.highlightToggle();
+                highlighted.add(stop);
+            }
+        }
+
+        // getTextOutputArea().append(Boolean.toString(list.Search(userInput)) + "\node");
+
+        //redraw();
+
 
     }
 
