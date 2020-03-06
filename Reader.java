@@ -22,7 +22,8 @@ public class Reader {
                     stops.add(stopIDMap.get(i));
                 });
 
-                setOfTrips.add(new Trip(data[0],stops));
+                setOfTrips.add(new Trip(data[0], (ArrayList) stops.clone()));
+                stops.clear();
                     });
         reader.close();
         } catch (Exception e) {

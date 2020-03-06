@@ -33,6 +33,14 @@ import java.awt.*;
             scale *= 1.1;
         }
 
+        public void highlightToggle(){
+            if(colour == Color.black) {
+                colour = Color.RED;
+            }else{
+                colour = Color.black;
+            }
+        }
+
         /**
          * decreases the scale of the object which effectively shrinks it.
          */

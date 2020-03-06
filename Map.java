@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Map extends GUI {
@@ -8,7 +9,7 @@ public class Map extends GUI {
     private Reader read;
     private HashSet<Trip> tripSet;
     private HashSet<Stop> stopSet;
-
+    private ArrayList<Drawable> highlighted;
 
     @Override
     protected void redraw(Graphics g) {
@@ -26,8 +27,26 @@ public class Map extends GUI {
 
     @Override
     protected void onClick(MouseEvent e) {
-
+        if(highlighted != null) {
+            for (Drawable d : highlighted) d.highlightToggle();
+        }
+        highlighted = new ArrayList<>();
+        Stop closestStop = (Stop) stopSet.toArray()[0];
+        for (Stop stop : stopSet){
+            if (stop.getPoint().distance(e.getPoint()) < closestStop.getPoint().distance(e.getPoint())){
+                closestStop = stop;
+            }
+        }
+        for (Trip trip : tripSet){
+            if (trip.getStops().contains(closestStop)){
+                trip.highlightToggle();
+                highlighted.add(trip);
+            }
+        }
+        highlighted.add(closestStop);
+        closestStop.highlightToggle();
     }
+
 
     @Override
     protected void onSearch() {
