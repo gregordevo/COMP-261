@@ -33,12 +33,13 @@ import java.awt.*;
             scale *= 1.1;
         }
 
-        public void highlightToggle(){
-            if(colour == Color.black) {
-                colour = Color.RED;
-            }else{
-                colour = Color.black;
-            }
+
+        public void highlight(){
+            colour = Color.RED;
+        }
+
+        public void unhighlight(){
+            colour = Color.black;
         }
 
         /**

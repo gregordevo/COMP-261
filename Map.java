@@ -30,8 +30,9 @@ public class Map extends GUI {
 
     @Override
     protected void onClick(MouseEvent e) {
+        getTextOutputArea().setText("");
         if(highlighted != null) {
-            for (Drawable d : highlighted) d.highlightToggle();
+            for (Drawable d : highlighted) d.unhighlight();
         }
         highlighted = new ArrayList<>();
         Stop closestStop = (Stop) stopSet.toArray()[0];
@@ -43,13 +44,15 @@ public class Map extends GUI {
         getTextOutputArea().append(closestStop.getName() + "\n");
         for (Trip trip : tripSet){
             if (trip.getStops().contains(closestStop)){
-                trip.highlightToggle();
+                trip.highlight();
                 highlighted.add(trip);
                 getTextOutputArea().append(trip.getID() + "\n");
             }
         }
         highlighted.add(closestStop);
-        closestStop.highlightToggle();
+        closestStop.highlight();
+
+
 
 
     }
@@ -57,19 +60,6 @@ public class Map extends GUI {
 
     @Override
     protected void onSearch() {
-//        for(Drawable d : highlighted) d.highlightToggle(); highlighted.clear();
-//        ArrayList<Stop> searchResult =  trie.findAllNode(getSearchBox().getText());
-//        highlighted.addAll(searchResult);
-//        for(Trip trip : tripSet){
-//            for(Stop s : searchResult){
-//                if(trip.getStops().contains(s.getName())){
-//                    highlighted.add(trip);
-//
-//                }
-//            }
-//        }
-//        for(Drawable d : highlighted) d.highlightToggle();
-
 
         ArrayList<Stop> stoplist = new ArrayList<>();
         stoplist.addAll(stopSet);
@@ -78,7 +68,7 @@ public class Map extends GUI {
         if (highlighted == null) { highlighted = new ArrayList<>();}
 
             for (Drawable d : highlighted) {
-                d.highlightToggle();
+                d.unhighlight();
             }
 
         highlighted.clear();
@@ -92,16 +82,15 @@ public class Map extends GUI {
         }else{
             for(Stop stop : returnedNames){
                 getTextOutputArea().append(stop.getName() + "\n");
-                stop.highlightToggle();
+                stop.highlight();
                 highlighted.add(stop);
+                for(Trip trip : tripSet){
+                    if(trip.getStops().contains(stop)) trip.highlight();
+                    highlighted.add(trip);
+                }
             }
+
         }
-
-        // getTextOutputArea().append(Boolean.toString(list.Search(userInput)) + "\node");
-
-        //redraw();
-
-
     }
 
     @Override
