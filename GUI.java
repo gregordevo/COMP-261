@@ -11,20 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 
@@ -272,6 +259,7 @@ public abstract class GUI {
 		// it's size, and add an action listener to call your code when
 		// the user presses enter.
 		search = new JTextField(SEARCH_COLS);
+		//JComboBox box = new JComboBox<Stop>();
 		search.setMaximumSize(new Dimension(0, 25));
 		search.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -286,8 +274,8 @@ public abstract class GUI {
 			search.addKeyListener(new KeyAdapter() {
 				public void keyReleased(KeyEvent e) {
 					// don't fire an event on backspace or delete
-					if (e.getKeyCode() == 8 || e.getKeyCode() == 127)
-						return;
+//					if (e.getKeyCode() == 8 || e.getKeyCode() == 127)
+//						return;
 					search.postActionEvent();
 				}
 			});
@@ -370,6 +358,21 @@ public abstract class GUI {
 
 		drawing.addMouseWheelListener(new MouseAdapter() {
 			public void mouseWheelMoved(MouseWheelEvent e) {
+				onScroll(e);
+				redraw();
+			}
+		});
+
+		drawing.addMouseMotionListener(new MouseAdapter() {
+			public void mouseDragged(MouseEvent e){
+				onDrag(e);
+				redraw();
+			}
+		});
+		drawing.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				onPress(e);
 			}
 		});
 
@@ -417,6 +420,12 @@ public abstract class GUI {
 		frame.pack();
 		frame.setVisible(true);
 	}
+
+	protected abstract void onPress(MouseEvent e);
+
+	protected abstract void onDrag(MouseEvent e);
+
+	protected abstract void onScroll(MouseWheelEvent e);
 }
 
 // code for COMP261 assignments

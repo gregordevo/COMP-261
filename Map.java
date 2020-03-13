@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +15,8 @@ public class Map extends GUI {
     private HashSet<Stop> stopSet;
     private ArrayList<Drawable> highlighted;
     private Trie listNames;
+    private int lastX = 0;
+    private int lastY = 0;
     @Override
     protected void redraw(Graphics g) {
         if(tripSet == null || stopSet == null){
@@ -31,6 +34,8 @@ public class Map extends GUI {
     @Override
     protected void onClick(MouseEvent e) {
         getTextOutputArea().setText("");
+        getTextOutputArea().append("" + e.getPoint().toString());
+        getTextOutputArea().append("\n" + new Point((int)getDrawingAreaDimension().getWidth()/2, (int)getDrawingAreaDimension().getHeight()/2).toString());
         if(highlighted != null) {
             for (Drawable d : highlighted) d.unhighlight();
         }
@@ -52,11 +57,31 @@ public class Map extends GUI {
         highlighted.add(closestStop);
         closestStop.highlight();
 
-
-
-
     }
 
+    protected void onScroll(MouseWheelEvent e){
+        //for(Stop stop : stopSet) stop.origin = new Location(e.getX()/stop.scale, e.getY()/stop.scale);
+        for(int i = 0; i < Math.abs(e.getWheelRotation()); i++){
+            if(e.getWheelRotation() < 0){
+                onMove(Move.ZOOM_IN);
+            }else{
+                onMove(Move.ZOOM_OUT);
+            }
+        }
+    }
+
+    @Override
+    protected void onDrag(MouseEvent e) {
+        changePosition(lastX - e.getX(), e.getY() - lastY );
+        lastX = e.getX();
+        lastY = e.getY();
+    }
+
+    @Override
+    protected void onPress(MouseEvent e) {
+        lastX = e.getX();
+        lastY = e.getY();
+    }
 
     @Override
     protected void onSearch() {

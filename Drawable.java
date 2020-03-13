@@ -30,7 +30,9 @@ import java.awt.*;
          * increases the scale of the object effectively magnifying it.
          */
         public void zoomIn(){
+            if(scale >= 1000)return;
             scale *= 1.1;
+
         }
 
 
@@ -46,6 +48,7 @@ import java.awt.*;
          * decreases the scale of the object which effectively shrinks it.
          */
         public void zoomOut(){
+            if(scale <= 11)return;
             scale *= 0.9;
         }
 

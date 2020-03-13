@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,21 @@ public class SquaresExample extends GUI {
 
 	public SquaresExample() {
 		makeSquares();
+	}
+
+	@Override
+	protected void onPress(MouseEvent e) {
+
+	}
+
+	@Override
+	protected void onDrag(MouseEvent e) {
+
+	}
+
+	@Override
+	protected void onScroll(MouseWheelEvent e) {
+
 	}
 
 	private void makeSquares() {
