@@ -1,11 +1,15 @@
-   import java.util.ArrayList;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 public class Quad<E extends Locatable> {
 
     private Quad<E> topLeftQuad, bottomLeftQuad, topRightQuad, bottomRightQuad;
     private ArrayList<E> quadElements = new ArrayList<>();
-    private Location topLeftMostPoint, bottomRightMostPoint;
+     private Location topLeftMostPoint, bottomRightMostPoint;
+
 
     final int maxElements = 4;
 
@@ -13,6 +17,7 @@ public class Quad<E extends Locatable> {
         this.topLeftMostPoint = topLeftMostPoint;
         this.bottomRightMostPoint = bottomRightMostPoint;
     }
+
 
     public void insertElement(E e) {
         if (e == null) return;
@@ -24,14 +29,14 @@ public class Quad<E extends Locatable> {
                 else if (topLeftQuad.Contains(quadElement)) topLeftQuad.insertElement(quadElement);
                 else if (bottomRightQuad.Contains(quadElement)) bottomRightQuad.insertElement(quadElement);
                 else if (bottomLeftQuad.Contains(quadElement)) bottomLeftQuad.insertElement(quadElement);
-             }
+            }
             quadElements.clear();
 
         }
     }
 
-    private boolean isParent(){
-        return(bottomLeftQuad != null && topLeftQuad != null && bottomRightQuad != null && topRightQuad != null );
+    private boolean isParent() {
+        return (bottomLeftQuad != null && topLeftQuad != null && bottomRightQuad != null && topRightQuad != null);
     }
 
     public void insertElements(Collection<E> elements) {
@@ -57,8 +62,8 @@ public class Quad<E extends Locatable> {
 
 
     private boolean Contains(E element) {
-        Location p = element. getLocation();
-          System.out.println(element. getLocation().toString());
+        Location p = element.getLocation();
+        System.out.println(element.getLocation().toString());
         return (p.x < bottomRightMostPoint.x && p.x > topLeftMostPoint.x && p.y < topLeftMostPoint.y && p.y > bottomRightMostPoint.y);
     }
 
@@ -66,35 +71,25 @@ public class Quad<E extends Locatable> {
         return (p.x < bottomRightMostPoint.x && p.x > topLeftMostPoint.x && p.y < topLeftMostPoint.y && p.y > bottomRightMostPoint.y);
     }
 
-    private boolean containsElements() {
-        return isParent() || quadElements.size() > 0;
+    public E getClosest(Location p){
+        return get(p).peek();
     }
 
+    public PriorityQueue<E> get(Location p) {
+        PriorityQueue<E> queue = new PriorityQueue<>(1, Comparator.comparing(d -> d.getLocation().distance(p)));
 
-    public E get(Location p) {
-        if (quadElements.isEmpty() && isParent() ) {
-            if ( topLeftQuad.Contains(p) ) {
-                return topLeftQuad.get(p);
-            }
-            if ( bottomRightQuad.Contains(p) ) {
-                 return bottomRightQuad.get(p);
-            }
-            if ( topRightQuad.Contains(p) ) {
-                return topRightQuad.get(p);
-            }
-            if ( bottomLeftQuad.Contains(p) ) {
-                return bottomLeftQuad.get(p);
-            }
-        } else if(!containsElements()){
-             return null;
-        } else {
-            E base = null;
-            for (E e : quadElements) {
-               if(base == null)base = e;
-                if (e. getLocation().distance(p) < base. getLocation().distance(p)) base = e;
-            }
-            return base;
+        if (topLeftQuad != null && topLeftQuad.quadElements != null) queue.addAll(topLeftQuad.quadElements);
+        if (bottomRightQuad != null && bottomRightQuad.quadElements != null) queue.addAll(bottomRightQuad.quadElements);
+        if (topRightQuad != null && topRightQuad.quadElements != null) queue.addAll(topRightQuad.quadElements);
+        if (bottomLeftQuad != null && bottomLeftQuad.quadElements != null) queue.addAll(bottomLeftQuad.quadElements);
+        queue.addAll(quadElements);
+        if (quadElements.isEmpty() && isParent()) {
+            if (topLeftQuad.Contains(p)) queue.addAll(topLeftQuad.get(p));
+            if (bottomRightQuad.Contains(p)) queue.addAll(bottomRightQuad.get(p));
+            if (topRightQuad.Contains(p)) queue.addAll(topRightQuad.get(p));
+            if (bottomLeftQuad.Contains(p)) queue.addAll(bottomLeftQuad.get(p));
         }
-         return null;
+        return queue;
     }
+
 }

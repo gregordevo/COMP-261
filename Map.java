@@ -19,7 +19,7 @@ public class Map extends GUI {
     private HashSet<Stop> stopSet;
     private ArrayList<Drawable> highlighted;
     private Trie listNames;
-    private Quad quad;
+    private Quad<Stop> quad;
     private int lastX = 0;
     private int lastY = 0;
     @Override
@@ -38,12 +38,27 @@ public class Map extends GUI {
 
     @Override
     protected void onClick(MouseEvent e) {
-        getTextOutputArea().setText(e.getPoint().toString());
+        if(highlighted != null) {
+            for (Drawable d : highlighted) d.unhighlight();
+        }
+        highlighted = new ArrayList<>();
+
         Stop randomStop = (Stop)(stopSet.toArray()[0]);
         Location mouseLoc = Location.newFromPoint(e.getPoint(), randomStop.origin, randomStop.getScale());
-         Stop closestStop = (Stop)quad.get(mouseLoc);
+        Stop closestStop =  quad.get(mouseLoc).peek();
+        if(closestStop == null)return;
+        getTextOutputArea().append(closestStop.getName() + "\n");
+        for (Trip trip : tripSet){
+            if (trip.getStops().contains(closestStop)){
+                trip.highlight();
+                highlighted.add(trip);
+                getTextOutputArea().append(trip.getID() + "\n");
+            }
+        }
+        highlighted.add(closestStop);
         closestStop.highlight();
-    }
+
+     }
 
 //    @Override
 //    protected void onClick(MouseEvent e) {
