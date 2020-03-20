@@ -1,87 +1,73 @@
-import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
-
-public class Trie {
-    static TrieNode root;
-    public class TrieNode {
 
 
-        String value;
-        HashMap<Integer, TrieNode> children = new HashMap<>();
-        Stop stopNode = null;
-        Boolean isLeaf;
+public class Trie<E, K> {
+    private TrieNode root;
+
+    private class TrieNode {
+
+        private boolean isLeaf;
+        private HashMap<Character, TrieNode> children = new HashMap<>();
+        E element = null;
 
         TrieNode() {
             isLeaf = false;
         }
 
+        TrieNode(char c) {
+            isLeaf = false;
+         }
 
-        public ArrayList<Stop> findAllStops(String key) {
-            ArrayList<Stop> result = new ArrayList<>();
-            if (children.isEmpty()) {
-                result.add(stopNode);
-                return result;
-            } else {
-                for (TrieNode child : children.values()) {
-                    child.value = this.value + child.value;
-                }
-                for (TrieNode child : children.values()) {
-                    List<Stop> childStops = child.findAllStops(key);
-                    result.addAll(childStops);
-                }
+        private ArrayList<E> listElements(K key) {
+            ArrayList<E> returnList = new ArrayList<>();
+            if (isLeaf) returnList.add(element);
+            if (children.isEmpty()) return returnList;
+            for (TrieNode child : children.values()) {
+                ArrayList<E> endNodes = child.listElements(key);
+                returnList.addAll(endNodes);
             }
-
-            return result;
+            return returnList;
         }
     }
-        public void insertKey(String key, Stop stop) {
-            TrieNode iterator = root;
-            int level = 0;
-            int index;
-            for (char c : key.toCharArray()) {
-                if (key.charAt(level) != ' ' || key.charAt(level) != '-') {
-                    index = key.charAt(level++) - 'a';
-                } else if (key.charAt(level) != ' ') {
-                    index = 27;
-                } else {
-                    index = 28;
-                }
-                if (iterator.children.get(index) == null) {
-                    iterator.children.put(index, new TrieNode());
-                    iterator.children.get(index).value = String.valueOf((char) ('a' + index));
-                }
-                iterator = iterator.children.get(index);
-            }
-            iterator.stopNode = stop;
-            iterator.isLeaf = true;
-        }
 
 
-        public ArrayList<Stop> findAllNode(String key) {
-            TrieNode iterator = root;
-            int level = 0;
+    public void insert(E element, String key) {
 
-            for (char c : key.toCharArray()) {
-                int index = key.charAt(level++) - 'a';
-                if (iterator.children.get(index) == null) {
-                    return new ArrayList<>();
-                }
-                iterator = iterator.children.get(index);
-            }
-            ArrayList<Stop> returnedList = iterator.findAllStops(key);
-            return returnedList;
-
-        }
-
-
-        Trie(ArrayList<Stop> stops) {
-            root = new TrieNode();
-
-            for (Stop stop : stops) {
-                insertKey(stop.getName(), stop);
+        TrieNode iterator = root;
+        for (char character : key.toCharArray()) {
+            if (iterator.children.containsKey(character)) iterator = iterator.children.get(character);
+            else {
+                iterator.children.put(character, new TrieNode(character));
+                iterator = iterator.children.get(character);
             }
         }
+        iterator.element = element;
+        iterator.isLeaf = true;
+
+    }
+
+    public ArrayList<E> listElements(K key) {
+        TrieNode iterator = root;
+        for (char character : key.toString().toCharArray()) {
+            if (iterator.children.get(character) == null) {
+                return new ArrayList<>();
+            }
+            iterator = iterator.children.get(character);
+        }
+        ArrayList<E> returnedList = iterator.listElements(key);
+        return returnedList;
+
+    }
+
+
+    Trie(Collection<E> elements) {
+        root = new TrieNode();
+
+        for (E e : elements) {
+            insert(e, e.toString());
+        }
+    }
 
 }

@@ -5,7 +5,7 @@ import java.awt.*;
      * Abstract class for all objects that are part
      * of the graph.
      */
-    public abstract class Drawable {
+    public abstract class Drawable  {
         String ID;
         public int scale = 20;
         public Location origin = new Location(0,0);
@@ -33,6 +33,10 @@ import java.awt.*;
             if(scale >= 1000)return;
             scale *= 1.1;
 
+        }
+
+        public double getScale(){
+            return this.scale;
         }
 
 
