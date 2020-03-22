@@ -2,6 +2,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+/**
+ * generic trie tree that will take any collection and returns all
+ * elements corresponding to a substring
+ * @param <E>
+ * @param <K>
+ */
 
 public class Trie<E, K> {
     private TrieNode root;
@@ -20,12 +26,12 @@ public class Trie<E, K> {
             isLeaf = false;
          }
 
-        private ArrayList<E> listElements(K key) {
+        private ArrayList<E> listElements( ) {
             ArrayList<E> returnList = new ArrayList<>();
             if (isLeaf) returnList.add(element);
             if (children.isEmpty()) return returnList;
             for (TrieNode child : children.values()) {
-                ArrayList<E> endNodes = child.listElements(key);
+                ArrayList<E> endNodes = child.listElements( );
                 returnList.addAll(endNodes);
             }
             return returnList;
@@ -56,7 +62,7 @@ public class Trie<E, K> {
             }
             iterator = iterator.children.get(character);
         }
-        ArrayList<E> returnedList = iterator.listElements(key);
+        ArrayList<E> returnedList = iterator.listElements( );
         return returnedList;
 
     }

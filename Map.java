@@ -1,55 +1,65 @@
-import com.sun.javafx.scene.paint.GradientUtils;
-import org.omg.PortableServer.POA;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 
 public class Map extends GUI {
 
     private Reader read;
-    private HashSet<Trip> tripSet;
-    private HashSet<Stop> stopSet;
+    private ArrayList<Stop> stopList;
+    private ArrayList<Trip> tripList;
     private ArrayList<Drawable> highlighted;
-    private Trie listNames;
     private Quad<Stop> quad;
     private int lastX = 0;
     private int lastY = 0;
+
+
+    /**
+     * iterates over all objects in graph and draws them
+     *
+     * @param g
+     */
     @Override
     protected void redraw(Graphics g) {
-        if(tripSet == null || stopSet == null){
+        if (tripList == null || stopList == null) {
             return;
-        }else {
-            for (Stop stop : stopSet) {
+        } else {
+            for (Stop stop : stopList) {
                 stop.draw(g);
             }
-            for (Trip trip : tripSet) {
+            for (Trip trip : tripList) {
                 trip.draw(g);
             }
         }
     }
 
+    /**
+     * Uses a quadtree to select a node that the user clicks on.
+     * This method works, however it only works consistently if the
+     * user clicks on the exact node they want to select. If the user
+     * clicks near the node they want to select it may not accurately
+     * select the closest node to the click.
+     *
+     * @param e
+     */
     @Override
     protected void onClick(MouseEvent e) {
-        if(highlighted != null) {
+        if (highlighted != null) {
             for (Drawable d : highlighted) d.unhighlight();
         }
+
         highlighted = new ArrayList<>();
 
-        Stop randomStop = (Stop)(stopSet.toArray()[0]);
+        Stop randomStop = stopList.get(0);
         Location mouseLoc = Location.newFromPoint(e.getPoint(), randomStop.origin, randomStop.getScale());
-        Stop closestStop =  quad.get(mouseLoc).peek();
-        if(closestStop == null)return;
-        getTextOutputArea().append(closestStop.getName() + "\n");
-        for (Trip trip : tripSet){
-            if (trip.getStops().contains(closestStop)){
+        Stop closestStop = quad.getClosest(mouseLoc);
+
+        if (closestStop == null) return;
+        getTextOutputArea().setText(closestStop.getName() + "\n");
+        for (Trip trip : tripList) {
+            if (trip.getStops().contains(closestStop)) {
                 trip.highlight();
                 highlighted.add(trip);
                 getTextOutputArea().append(trip.getID() + "\n");
@@ -58,8 +68,13 @@ public class Map extends GUI {
         highlighted.add(closestStop);
         closestStop.highlight();
 
-     }
+    }
 
+    /**
+     * performs a linear search and selects the stop closest to the
+     * mouse click (working)
+     * @param e
+     */
 //    @Override
 //    protected void onClick(MouseEvent e) {
 //        getTextOutputArea().setText("");
@@ -69,14 +84,14 @@ public class Map extends GUI {
 //            for (Drawable d : highlighted) d.unhighlight();
 //        }
 //        highlighted = new ArrayList<>();
-//        Stop closestStop = (Stop) stopSet.toArray()[0];
-//        for (Stop stop : stopSet){
+//        Stop closestStop = (Stop) stopList.toArray()[0];
+//        for (Stop stop : stopList){
 //            if (stop.getPoint().distance(e.getPoint()) < closestStop.getPoint().distance(e.getPoint())){
 //                closestStop = stop;
 //            }
 //        }
 //        getTextOutputArea().append(closestStop.getName() + "\n");
-//        for (Trip trip : tripSet){
+//        for (Trip trip : tripList){
 //            if (trip.getStops().contains(closestStop)){
 //                trip.highlight();
 //                highlighted.add(trip);
@@ -92,20 +107,30 @@ public class Map extends GUI {
 //
 //    }
 
-    protected void onScroll(MouseWheelEvent e){
-        //for(Stop stop : stopSet) stop.origin = new Location(e.getX()/stop.scale, e.getY()/stop.scale);
-        for(int i = 0; i < Math.abs(e.getWheelRotation()); i++){
-            if(e.getWheelRotation() < 0){
+    /**
+     * zooms in or out based on the scroll wheel
+     *
+     * @param e
+     */
+    protected void onScroll(MouseWheelEvent e) {
+        for (int i = 0; i < Math.abs(e.getWheelRotation()); i++) {
+            if (e.getWheelRotation() < 0) {
                 onMove(Move.ZOOM_IN);
-            }else{
+            } else {
                 onMove(Move.ZOOM_OUT);
             }
         }
     }
 
+
+    /**
+     * moves the map around based on the users mouse drag
+     *
+     * @param e
+     */
     @Override
     protected void onDrag(MouseEvent e) {
-        changePosition(lastX - e.getX(), e.getY() - lastY );
+        changePosition(lastX - e.getX(), e.getY() - lastY);
         lastX = e.getX();
         lastY = e.getY();
     }
@@ -116,18 +141,23 @@ public class Map extends GUI {
         lastY = e.getY();
     }
 
+    /**
+     * utilises a trie tree to search all stops corresponding to
+     * a users input and returns them, then selects each one.
+     */
     @Override
     protected void onSearch() {
 
-        ArrayList<Stop> stoplist = new ArrayList<>();
-        stoplist.addAll(stopSet);
-        listNames = new Trie(stoplist);
-        getTextOutputArea().setText("");
-        if (highlighted == null) { highlighted = new ArrayList<>();}
 
-            for (Drawable d : highlighted) {
-                d.unhighlight();
-            }
+        Trie listNames = new Trie(stopList);
+        getTextOutputArea().setText("");
+        if (highlighted == null) {
+            highlighted = new ArrayList<>();
+        }
+
+        for (Drawable d : highlighted) {
+            d.unhighlight();
+        }
 
         highlighted.clear();
         String userInput = getSearchBox().getText();
@@ -135,15 +165,15 @@ public class Map extends GUI {
 
         ArrayList<Stop> returnedNames = listNames.listElements(userInput);
 
-        if(userInput.equals("")){
+        if (userInput.equals("")) {
             getTextOutputArea().setText("");
-        }else{
-            for(Stop stop : returnedNames){
+        } else {
+            for (Stop stop : returnedNames) {
                 getTextOutputArea().append(stop.getName() + "\n");
                 stop.highlight();
                 highlighted.add(stop);
-                for(Trip trip : tripSet){
-                    if(trip.getStops().contains(stop)) trip.highlight();
+                for (Trip trip : tripList) {
+                    if (trip.getStops().contains(stop)) trip.highlight();
                     highlighted.add(trip);
                 }
             }
@@ -151,10 +181,16 @@ public class Map extends GUI {
         }
     }
 
+    /**
+     * moves all objects in the graph by a set amount based on the direction
+     * it is given.
+     *
+     * @param m
+     */
     @Override
     protected void onMove(Move m) {
         int baseMovement = 20;
-        switch(m){
+        switch (m) {
             case NORTH:
                 changePosition(0, baseMovement);
                 break;
@@ -168,12 +204,12 @@ public class Map extends GUI {
                 changePosition(-baseMovement, 0);
                 break;
             case ZOOM_IN:
-                for(Stop stop : stopSet){
+                for (Stop stop : stopList) {
                     stop.zoomIn();
                 }
                 break;
             case ZOOM_OUT:
-                for(Stop stop : stopSet){
+                for (Stop stop : stopList) {
                     stop.zoomOut();
                 }
                 break;
@@ -181,15 +217,19 @@ public class Map extends GUI {
         redraw();
     }
 
-    public void changePosition(double x, double y){
-        for(Stop stop : stopSet){
-            stop.move(x,y);
+    public void changePosition(double x, double y) {
+        for (Stop stop : stopList) {
+            stop.move(x, y);
         }
     }
 
-    public Location findTopLeft(){
-        ArrayList<Stop> stopList = new ArrayList<>( );
-        stopList.addAll(stopSet);
+    /**
+     * finds the furthest most top left stop and the adds 100 to the x and y.
+     *
+     * @return
+     */
+    public Location findTopLeft() {
+
         double furthestStopx = stopList.get(0).getLocation().x;
         double furthestStopy = stopList.get(0).getLocation().y;
         double x = 0;
@@ -205,16 +245,17 @@ public class Map extends GUI {
             }
         }
 
-        Location loc =  new Location(x-100,y +100);
-        Point p = loc.asPoint(stopList.get(0).origin, stopList.get(0).getScale());
-         getTextOutputArea().append("topleft: " + loc.toString()+"\n");
-         return loc;
+        Location loc = new Location(x - 100, y + 100);
+        return loc;
     }
 
+    /**
+     * finds the furthest most bottom right stop and the adds 100 to the x and y.
+     *
+     * @return
+     */
+    public Location findBottomRight() {
 
-    public Location findBottomRight(){
-        ArrayList<Stop> stopList = new ArrayList<>( );
-        stopList.addAll(stopSet);
         double furthestStopx = stopList.get(0).getLocation().x;
         double furthestStopy = stopList.get(0).getLocation().y;
         double x = 0;
@@ -230,30 +271,33 @@ public class Map extends GUI {
             }
         }
 
-        Location loc =  new Location(x+100,y-100);
-        Point p = loc.asPoint(stopList.get(0).origin, stopList.get(0).getScale());
-        getTextOutputArea().append("bottomRight: "  + p.toString() +"\n");
+        Location loc = new Location(x + 100, y - 100);
         return loc;
     }
 
 
+    /**
+     * reads the data files and creates a quadtree based on the locations
+     * of the furthest outlying Stops
+     *
+     * @param stopFile
+     * @param tripFile
+     */
     @Override
     protected void onLoad(File stopFile, File tripFile) {
-        stopSet = (HashSet) read.readStops(stopFile);
-        tripSet = (HashSet) read.readTrips(tripFile);
-//        findTopLeft();
-//        findBottomRight();
+        stopList = read.readStops(stopFile);
+        tripList = read.readTrips(tripFile);
         quad = new Quad(findTopLeft(), findBottomRight());
-        quad.insertElements(stopSet);
+        quad.insertElements(stopList);
         redraw();
     }
 
-    private Map(){
+    private Map() {
         super();
         read = new Reader();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         new Map();
     }
 }

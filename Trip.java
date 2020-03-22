@@ -1,14 +1,19 @@
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class Trip extends Drawable {
 
     private final List<Stop> stops;
+    private final List<Connection> connections = new ArrayList<>();
 
     public Trip(String id, List<Stop> stops) {
         this.ID = id;
         this.stops = stops;
+        for(int i =1; i < stops.size(); i++){
+            Connection newCon =  new Connection(stops.get(i-1), stops.get(i));
+            connections.add(newCon);
+        }
     }
 
     public List<Stop> getStops() {
@@ -18,12 +23,7 @@ public class Trip extends Drawable {
     @Override
     public void draw(Graphics g) {
         g.setColor(colour);
-        for(int i = 1; i < stops.size(); i++){
-            // problem here
-            Point firstPoint = stops.get(i-1).getPoint();
-            Point secondPoint = stops.get(i).getPoint();
-            g.drawLine((int)firstPoint.getX(), (int)firstPoint.getY(), (int)secondPoint.getX(), (int)secondPoint.getY());
-        }
+        for(Connection c : connections) c.draw(g);
     }
 }
 

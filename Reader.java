@@ -3,13 +3,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.*;
 
+/**
+ * reads the data files and passes them back to the map
+ */
 public class Reader {
 
     private HashMap<String, Stop> stopIDMap = new HashMap<>();
     private BufferedReader reader;
 
-    public Set<Trip> readTrips(File file){
-        Set<Trip> setOfTrips = new HashSet<>();
+    public ArrayList<Trip> readTrips(File file){
+        ArrayList<Trip> setOfTrips = new ArrayList<>();
         ArrayList<Stop> stops = new ArrayList<>();
         try{
             reader = new BufferedReader(new FileReader(file));
@@ -33,8 +36,8 @@ public class Reader {
         return setOfTrips;
     }
 
-    public Set<Stop> readStops(File file){
-        Set<Stop> setOfStops = new HashSet<>();
+    public ArrayList<Stop> readStops(File file){
+        ArrayList<Stop> setOfStops = new ArrayList<>();
         try{
             reader = new BufferedReader(new FileReader(file));
             reader.readLine();
